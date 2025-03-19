@@ -1,0 +1,9 @@
+flask
+pyjwt
+datetime
+uuid
+Flask-SQLAlchemy
+connexion
+flask_marshmallow
+flask_jwt_extended
+marshmallow-sqlalchemy
