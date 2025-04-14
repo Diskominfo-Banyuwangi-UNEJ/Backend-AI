@@ -25,6 +25,8 @@ LIST_FILES = [
     # models
     "src/models/__init__.py",
     "src/models/user_model.py",
+    "src/models/tumpukan_sampah_model.py",
+    "src/models/analisis_tumpukan_model.py",
     # services
     "src/services/__init__.py",
     "src/services/jwt_service.py",

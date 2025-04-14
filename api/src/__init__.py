@@ -26,6 +26,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 from src.models.user_model import User
+from src.models.tumpukan_sampah_model import TumpukanSampah
+from src.models.analisis_tumpukan_model import AnalisisTumpukan
 
 from src.routes import api
 
