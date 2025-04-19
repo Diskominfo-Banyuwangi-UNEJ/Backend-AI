@@ -27,8 +27,6 @@ def create_user():
             role=RoleEnum[data['role'].upper()],
             jenis_kelamin=GenderEnum[data.get('jenis_kelamin', 'OTHER').upper()],
             no_telepon=data.get('no_telepon'),
-            tanggal_lahir=datetime.strptime(data['tanggal_lahir'], '%Y-%m-%d').date()
-            if 'tanggal_lahir' in data else None
         )
 
         db.session.add(new_user)
@@ -97,8 +95,6 @@ def update_user(user_id):
             user.jenis_kelamin = GenderEnum[data['jenis_kelamin'].upper()]
         if 'no_telepon' in data:
             user.no_telepon = data['no_telepon']
-        if 'tanggal_lahir' in data:
-            user.tanggal_lahir = datetime.strptime(data['tanggal_lahir'], '%Y-%m-%d').date()
 
         db.session.commit()
 

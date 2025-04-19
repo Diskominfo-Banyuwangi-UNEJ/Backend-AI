@@ -1,17 +1,29 @@
 from ultralytics import YOLO
+import supervision as sv
 import cv2
-import matplotlib.pyplot as plt
 
-# Muat model yang sudah dilatih
-model = YOLO('runs/detect/train/weights/best.pt')  # Sesuaikan dengan path model yang tersimpan
+# Load your local YOLO model
+model = YOLO("best.pt")
 
-image_path = 'test3.jpeg'
-results = model(image_path)
+# Perform prediction
+results = model("test3.jpeg", conf=0.05, iou=0.8)
 
-# Tampilkan hasil
-for r in results:
-    img_with_boxes = r.plot()
+detections = sv.Detections.from_ultralytics(results[0])
 
-    cv2.imshow('Detection Result', img_with_boxes)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+labels = [
+    model.model.names[class_id]
+    for class_id in detections.class_id
+]
+
+box_annotator = sv.BoxAnnotator()
+label_annotator = sv.LabelAnnotator()
+
+image = cv2.imread("test3.jpeg")
+annotated_image = box_annotator.annotate(scene=image, detections=detections)
+annotated_image = label_annotator.annotate(
+    scene=annotated_image,
+    detections=detections,
+    labels=labels
+)
+
+sv.plot_image(image=annotated_image, size=(16, 16)

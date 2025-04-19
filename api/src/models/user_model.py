@@ -18,7 +18,6 @@ class User(db.Model):
     id_user = db.Column(db.Integer(), primary_key=True, nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
     name_lengkap = db.Column(db.String(30), nullable=False)
-    tanggal_lahir = db.Column(db.DateTime(), nullable=False)
     email = db.Column(db.String(35), nullable=False, unique=True)
     no_telepon = db.Column(db.String(13), nullable=False)
     jenis_kelamin = db.Column(db.Enum(GenderEnum), nullable=False)
@@ -31,7 +30,6 @@ class User(db.Model):
         return {
             'role': self.role.name if self.role else None,
             'name_lengkap': self.name_lengkap,
-            'tanggal_lahir': self.tanggal_lahir.isoformat() if self.tanggal_lahir else None,
             'email': self.email,
             'no_telepon': self.no_telepon,
             'jenis_kelamin': self.jenis_kelamin.name if self.jenis_kelamin else None,
