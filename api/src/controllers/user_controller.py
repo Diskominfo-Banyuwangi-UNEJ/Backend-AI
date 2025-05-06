@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify
-from src.models.user_model import User, GenderEnum, RoleEnum
+from src.models.user_model import User, RoleEnum
 from src import bcrypt, db
 from datetime import datetime
 
@@ -25,7 +25,6 @@ def create_user():
             username=data['username'],
             password=bcrypt.generate_password_hash(data['password']).decode('utf-8'),
             role=RoleEnum[data['role'].upper()],
-            jenis_kelamin=GenderEnum[data.get('jenis_kelamin', 'OTHER').upper()],
             no_telepon=data.get('no_telepon'),
         )
 
@@ -91,8 +90,6 @@ def update_user(user_id):
             user.password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         if 'role' in data:
             user.role = RoleEnum[data['role'].upper()]
-        if 'jenis_kelamin' in data:
-            user.jenis_kelamin = GenderEnum[data['jenis_kelamin'].upper()]
         if 'no_telepon' in data:
             user.no_telepon = data['no_telepon']
 
