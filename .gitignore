@@ -10,6 +10,8 @@ api/src/__pycache__/
 venv/
 .env
 api/.env
+# Make sure to ignore .env in any subdirectory
+**/.env
 .venv/
 env/
 requirements.txt.old
