@@ -8,7 +8,6 @@ import os
 MODEL_PATH = "train_model.pt"
 TEST_IMAGE = "image-testing/full.jpeg"
 
-# Waste pile status thresholds and colors
 STATUS_THRESHOLDS = {
     'empty': (0.0, 0.0),
     'low': (0.0, 0.5),
@@ -46,7 +45,6 @@ def calculate_waste_pile_level(garbage_boxes, container_box):
 
     fill_ratio = waste_height / container_height
 
-    # Determine status
     for status, (min_thresh, max_thresh) in STATUS_THRESHOLDS.items():
         if min_thresh <= fill_ratio < max_thresh:
             return status, fill_ratio
@@ -111,23 +109,19 @@ def process_image(image_path):
         labels=labels
     )
 
-    # Create compact status box on the left side
-    box_width = 250  # Width of the status box
-    box_height = 80  # Height of the status box
+    box_width = 250
+    box_height = 80
     margin = 10      # Margin from the edges
     
-    # Create semi-transparent black rectangle
     overlay = annotated_image.copy()
     cv2.rectangle(overlay, 
                  (margin, margin), 
                  (box_width, box_height), 
                  (0, 0, 0), -1)
     
-    # Add transparency
-    alpha = 0.7  # Transparency factor
+    alpha = 0.7
     annotated_image = cv2.addWeighted(overlay, alpha, annotated_image, 1 - alpha, 0)
     
-    # Add status with color coding
     cv2.putText(annotated_image, 
                f"Status: {level.upper()}",
                (margin + 10, margin + 30), 
@@ -136,7 +130,6 @@ def process_image(image_path):
                status_color, 
                2)
     
-    # Add fill ratio
     cv2.putText(annotated_image, 
                f"Fill: {fill_ratio:.1%}",
                (margin + 10, margin + 60), 
