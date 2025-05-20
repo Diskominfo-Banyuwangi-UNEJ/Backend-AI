@@ -28,6 +28,8 @@ migrate = Migrate(app, db)
 from src.models.user_model import User
 from src.models.tumpukan_sampah_model import TumpukanSampah
 from src.models.analisis_tumpukan_model import AnalisisTumpukan
+from src.models.keramaian_model import Keramaian
+from src.models.analisis_keramaian_model import AnalisisKeramaian
 
 from src.routes import api
 

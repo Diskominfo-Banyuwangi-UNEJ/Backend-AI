@@ -1,169 +1,197 @@
-import cv2
-import time
 from datetime import datetime
-import sqlite3
 from ultralytics import YOLO
+import cv2
 import supervision as sv
 import threading
+import os
+import numpy as np
+from flask import Flask
+from api.src import create_app, db
+from api.src.models.analisis_tumpukan_model import AnalisisTumpukan, StatusAnalisis
 
+# Configuration
 MODEL_PATH = "train_model.pt"
-DATABASE_NAME = "detections.db"
-CAPTURE_INTERVAL = 3600
+CAPTURE_INTERVAL = 3600  # 1 hour in seconds
 RTSP_URL = "rtsp://username:password@ip_address:port/path"
+UPLOAD_FOLDER = "captures"
 
-# Inisialisasi model YOLO
+# Initialize Flask app and create database tables
+app = create_app()
+with app.app_context():
+    db.create_all()
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 model = YOLO(MODEL_PATH)
 
-def init_db():
-    conn = sqlite3.connect(DATABASE_NAME)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS detections (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME,
-            image_path TEXT,
-            object_class TEXT,
-            confidence REAL,
-            x_min REAL,
-            y_min REAL,
-            x_max REAL,
-            y_max REAL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+def calculate_waste_pile_level(garbage_boxes, container_box):
+    """Calculate waste pile height relative to container height"""
+    if len(garbage_boxes) == 0 or container_box is None:
+        return 0.0, 0.0  # capacity_level, confidence_score
 
-# Fungsi untuk menyimpan deteksi ke database
-def save_to_db(image_path, detections):
-    conn = sqlite3.connect(DATABASE_NAME)
-    cursor = conn.cursor()
+    top_positions = [box[1] for box in garbage_boxes]
+    bottom_positions = [box[3] for box in garbage_boxes]
     
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    min_y = min(top_positions)
+    max_y = max(bottom_positions)
+    waste_height = max_y - min_y
+
+    container_ymin, container_ymax = container_box[1], container_box[3]
+    container_height = container_ymax - container_ymin
+
+    if container_height <= 0:
+        return 0.0, 0.0
+
+    capacity_level = waste_height / container_height
+    confidence_score = 0.85
     
-    for i in range(len(detections.class_id)):
-        class_id = detections.class_id[i]
-        confidence = detections.confidence[i]
-        bbox = detections.xyxy[i]
-        
-        cursor.execute('''
-            INSERT INTO detections (
-                timestamp, image_path, object_class, confidence,
-                x_min, y_min, x_max, y_max
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            timestamp,
-            image_path,
-            model.model.names[class_id],
-            float(confidence),
-            float(bbox[0]),
-            float(bbox[1]),
-            float(bbox[2]),
-            float(bbox[3])
-        ))
-    
-    conn.commit()
-    conn.close()
+    return capacity_level, confidence_score
 
 def process_frame(frame):
     results = model(frame, conf=0.085, iou=0.5)
     detections = sv.Detections.from_ultralytics(results[0])
+
+    container_boxes = []
+    garbage_boxes = []
+
+    for class_id, box in zip(detections.class_id, detections.xyxy):
+        class_name = model.model.names[class_id].lower()
+        if class_name == "container":
+            container_boxes.append(box)
+        elif class_name == "garbage":
+            garbage_boxes.append(box)
+
+    container_box = container_boxes[0] if container_boxes else None
+    capacity_level, confidence_score = calculate_waste_pile_level(garbage_boxes, container_box)
+
+    # Annotate frame
+    annotated_frame = frame.copy()
+    box_annotator = sv.BoxAnnotator(thickness=2)
+
+    box_width = 250
+    box_height = 80
+    margin = 10
     
-    # Buat label untuk annotasi
-    labels = [
-        f"{model.model.names[class_id]} {confidence:.2f}" 
-        for class_id, confidence in zip(detections.class_id, detections.confidence)
-    ]
+    overlay = annotated_frame.copy()
+    cv2.rectangle(overlay, (margin, margin), (box_width, box_height), (0, 0, 0), -1)
+    alpha = 0.7
+    annotated_frame = cv2.addWeighted(overlay, alpha, annotated_frame, 1 - alpha, 0)
     
-    # Annotasi frame
-    box_annotator = sv.BoxAnnotator(
-        thickness=2,
-        color=sv.Color(r=0, g=255, b=0),
-        color_lookup=sv.ColorLookup.INDEX
-    )
+    cv2.putText(annotated_frame, 
+                f"Capacity: {capacity_level:.1%}",
+                (margin + 10, margin + 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 255),
+                2)
     
-    label_annotator = sv.LabelAnnotator(
-        text_color=sv.Color(r=255, g=255, b=255),
-        text_scale=0.6,
-        text_thickness=1,
-        text_padding=5,
-        text_position=sv.Position.TOP_LEFT,
-        color_lookup=sv.ColorLookup.INDEX
-    )
-    
-    annotated_frame = box_annotator.annotate(scene=frame.copy(), detections=detections)
-    annotated_frame = label_annotator.annotate(
-        scene=annotated_frame,
-        detections=detections,
-        labels=labels
-    )
-    
-    return annotated_frame, detections
+    cv2.putText(annotated_frame,
+                f"Confidence: {confidence_score:.1%}",
+                (margin + 10, margin + 60),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 255),
+                2)
+
+    return annotated_frame, capacity_level, confidence_score, bool(container_box), len(garbage_boxes)
+
+def determine_status(capacity_level):
+    """Determine status based on capacity level"""
+    if 0 <= capacity_level < 0.3:
+        return StatusAnalisis.EMPTY
+    elif 0.3 <= capacity_level < 0.5:
+        return StatusAnalisis.LOW
+    elif 0.5 <= capacity_level < 0.8:
+        return StatusAnalisis.NORMAL
+    else:
+        return StatusAnalisis.HIGH
+
+def save_analysis(image_path, capacity_level, confidence_score, id_tumpukan=1):
+    """Save analysis results to MySQL database using SQLAlchemy"""
+    try:
+        with app.app_context():
+            status = determine_status(capacity_level)
+            
+            analysis = AnalisisTumpukan(
+                id_tumpukan=id_tumpukan,
+                image=image_path,
+                status=status,
+                capacity_level=float(capacity_level),
+                confidence_score=float(confidence_score),
+                keterangan=f"Auto analysis: {status.value} full"
+            )
+            
+            db.session.add(analysis)
+            db.session.commit()
+            
+            print(f"Successfully saved analysis with status: {status.value}")
+            return True
+            
+    except Exception as e:
+        print(f"Database error: {str(e)}")
+        if 'db' in locals():
+            db.session.rollback()
+        return False
 
 def periodic_capture():
     cap = cv2.VideoCapture(RTSP_URL)
     
     if not cap.isOpened():
-        print("Error: Tidak dapat terhubung ke CCTV")
+        print("Error: Cannot connect to CCTV")
         return
     
     last_capture_time = time.time()
     
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Gagal mendapatkan frame")
+        try:
+            ret, frame = cap.read()
+            if not ret:
+                print("Error: Failed to get frame")
+                time.sleep(5)
+                continue
+            
+            processed_frame, capacity_level, confidence_score, container_detected, garbage_count = process_frame(frame)
+            cv2.imshow('CCTV Monitoring', processed_frame)
+            
+            current_time = time.time()
+            if current_time - last_capture_time >= CAPTURE_INTERVAL:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                image_path = os.path.join(UPLOAD_FOLDER, f"detected_{timestamp}.jpg")
+                
+                # Save annotated image
+                cv2.imwrite(image_path, processed_frame)
+                
+                # Save to MySQL database
+                if save_analysis(image_path, capacity_level, confidence_score):
+                    print(f"Analysis saved: {image_path}")
+                    print(f"Capacity Level: {capacity_level:.1%}")
+                    print(f"Confidence Score: {confidence_score:.1%}")
+                else:
+                    print("Failed to save analysis to database")
+                    
+                last_capture_time = current_time
+            
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+                
+        except Exception as e:
+            print(f"Error in capture loop: {str(e)}")
             time.sleep(5)
-            continue
-        
-        processed_frame, _ = process_frame(frame)
-        cv2.imshow('CCTV Monitoring', processed_frame)
-        
-        current_time = time.time()
-        if current_time - last_capture_time >= CAPTURE_INTERVAL:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            image_path = f"captures/capture_{timestamp}.jpg"
-            
-            # Simpan gambar asli
-            cv2.imwrite(image_path, frame)
-            
-            # Proses deteksi
-            processed_frame, detections = process_frame(frame)
-            
-            # Simpan gambar dengan deteksi
-            detected_image_path = f"captures/detected_{timestamp}.jpg"
-            cv2.imwrite(detected_image_path, processed_frame)
-            
-            # Simpan ke database
-            save_to_db(detected_image_path, detections)
-            
-            print(f"Capture disimpan: {detected_image_path}")
-            last_capture_time = current_time
-        
-        # Keluar dengan menekan 'q'
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
     
     cap.release()
     cv2.destroyAllWindows()
 
-# Fungsi utama
 def main():
-    # Inisialisasi database
-    # init_db()
-    
-    # Buat folder captures jika belum ada
-    # import os
-    # os.makedirs("captures", exist_ok=True)
-    
-    capture_thread = threading.Thread(target=periodic_capture)
-    capture_thread.daemon = True
-    capture_thread.start()
-    
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Aplikasi dihentikan")
+    with app.app_context():
+        capture_thread = threading.Thread(target=periodic_capture)
+        capture_thread.daemon = True
+        capture_thread.start()
+        
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("Application stopped")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ docs.info.title }} - Interactive API Docs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark-dimmed.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        primary: {
+                            light: '#3b82f6',
+                            dark: '#60a5fa'
+                        },
+                        secondary: {
+                            light: '#6366f1',
+                            dark: '#818cf8'
+                        },
+                        background: {
+                            light: '#f8fafc',
+                            dark: '#0f172a'
+                        },
+                        surface: {
+                            light: '#ffffff',
+                            dark: '#1e293b'
+                        },
+                        text: {
+                            light: '#334155',
+                            dark: '#e2e8f0'
+                        },
+                        muted: {
+                            light: '#64748b',
+                            dark: '#94a3b8'
+                        },
+                        accent: {
+                            light: '#f43f5e',
+                            dark: '#fb7185'
+                        }
+                    },
+                    screens: {
+                        '3xl': '1792px',
+                    },
+                    transitionProperty: {
+                        'colors': 'color, background-color, border-color, fill, stroke',
+                        'transform': 'transform'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        html {
+            @apply transition-colors duration-300;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            @apply bg-background-light dark:bg-background-dark;
+        }
+        
+        .dark .hljs {
+            @apply bg-slate-800/70;
+        }
+        
+        .dark .endpoint-item.active {
+            @apply bg-slate-700 text-primary-dark border-l-4 border-primary-dark;
+        }
+        
+        .dark .category-list::-webkit-scrollbar {
+            @apply w-2;
+        }
+        .dark .category-list::-webkit-scrollbar-track {
+            @apply bg-slate-800;
+        }
+        .dark .category-list::-webkit-scrollbar-thumb {
+            @apply bg-slate-600 rounded-full;
+        }
+        
+        .endpoint-method.get {
+            @apply bg-green-500 text-white;
+        }
+        
+        .endpoint-method.post {
+            @apply bg-blue-500 text-white;
+        }
+        
+        .endpoint-method.put {
+            @apply bg-amber-500 text-white;
+        }
+        
+        .endpoint-method.patch {
+            @apply bg-purple-500 text-white;
+        }
+        
+        .endpoint-method.delete {
+            @apply bg-red-500 text-white;
+        }
+        
+        .response-200 {
+            @apply text-green-500 dark:text-green-400;
+        }
+        
+        .response-201 {
+            @apply text-blue-500 dark:text-blue-400;
+        }
+        
+        .response-400, .response-401, .response-403, .response-404, .response-500 {
+            @apply text-red-500 dark:text-red-400;
+        }
+        
+        .endpoint-section {
+            @apply opacity-0 translate-y-4 transition-all duration-500 ease-out;
+        }
+        
+        .endpoint-section.visible {
+            @apply opacity-100 translate-y-0;
+        }
+        
+        .endpoint-list {
+            @apply max-h-0 overflow-hidden transition-all duration-300 ease-in-out;
+        }
+        
+        .category-item.active .endpoint-list {
+            @apply max-h-[1000px] pb-2;
+        }
+        
+        .category-arrow {
+            @apply transition-transform duration-300 ease-in-out;
+        }
+        
+        .category-item.active .category-arrow {
+            @apply rotate-180;
+        }
+        
+        /* Dark mode styles */
+        .dark .sidebar-nav {
+            @apply bg-surface-dark border border-slate-700 shadow-lg;
+        }
+        
+        .dark .endpoint-section {
+            @apply bg-surface-dark border border-slate-700 shadow-lg;
+        }
+        
+        .dark .endpoint-header {
+            @apply border-slate-700 bg-slate-800/50;
+        }
+        
+        .dark .endpoint-path {
+            @apply bg-slate-700 text-slate-200;
+        }
+        
+        .dark .category-header {
+            @apply border-slate-700;
+        }
+        
+        .dark .category-header:hover {
+            @apply bg-slate-800/50;
+        }
+        
+        .dark .endpoint-item:hover {
+            @apply bg-slate-800/50;
+        }
+        
+        .dark .code-header {
+            @apply bg-slate-800 border-b border-slate-700;
+        }
+        
+        .dark .code-block {
+            @apply bg-slate-900/50;
+        }
+        
+        .dark footer {
+            @apply border-slate-800 text-slate-400;
+        }
+        
+        /* Enhanced styling */
+        .sidebar-nav {
+            @apply border border-gray-200 shadow-md;
+        }
+        
+        .endpoint-section {
+            @apply border border-gray-200 shadow-md;
+        }
+        
+        .endpoint-header {
+            @apply border-b border-gray-200;
+        }
+        
+        .code-container {
+            @apply border border-gray-200 rounded-lg overflow-hidden;
+        }
+        
+        .dark .code-container {
+            @apply border-slate-700;
+        }
+        
+        .code-header {
+            @apply bg-gray-100 border-b border-gray-200;
+        }
+        
+        .code-block {
+            @apply bg-gray-50;
+        }
+        
+        .category-header {
+            @apply border-b border-gray-200;
+        }
+        
+        footer {
+            @apply border-t border-gray-200;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Pulse animation for active endpoint */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .endpoint-item.active {
+            @apply relative;
+        }
+        
+        .endpoint-item.active::after {
+            content: '';
+            @apply absolute inset-0 bg-primary-light/10 dark:bg-primary-dark/10 rounded;
+            animation: pulse 2s infinite;
+        }
+        
+        .section-title {
+            @apply pb-1 border-b border-gray-200 dark:border-slate-700 w-fit;
+            background: linear-gradient(90deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0) 100%);
+        }
+        
+        .dark .section-title {
+            background: linear-gradient(90deg, rgba(96,165,250,0.2) 0%, rgba(96,165,250,0) 100%);
+        }
+        
+        .theme-toggle {
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .dark .theme-toggle {
+            box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+        }
+        
+        @media (max-width: 1280px) {
+            .endpoint-path {
+                @apply ml-0 mt-2 w-full;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark dark:text-text-dark text-text-light font-sans antialiased">
+    <header class="bg-gradient-to-r from-primary-light to-secondary-light text-white py-12 mb-8 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 left-1/4 w-32 h-32 rounded-full bg-white/20 blur-xl"></div>
+            <div class="absolute bottom-0 right-1/3 w-40 h-40 rounded-full bg-white/20 blur-xl"></div>
+        </div>
+        <div class="container mx-auto px-4 lg:px-8 relative">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">{{ docs.info.title }}</h1>
+                <p class="mt-4 opacity-90 font-light text-base lg:text-lg max-w-3xl">{{ docs.info.description }}</p>
+                <div class="flex flex-wrap gap-x-6 gap-y-3 mt-6 text-sm lg:text-base text-white/90">
+                    <span class="flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Version: {{ docs.info.version }}
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Last updated: {{ docs.info.last_updated }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 lg:px-8">
+        <div class="flex flex-col xl:flex-row gap-8 max-w-7xl mx-auto">
+            <aside class="xl:w-72 flex-shrink-0 xl:sticky xl:top-4 h-fit">
+                <div class="sidebar-nav bg-white border-2 dark:border-slate-700 border-primary-light dark:bg-slate-800 rounded-xl overflow-hidden transition-all duration-300">
+                    <div class="sidebar-title bg-gradient-to-r from-primary-light dark:from-primary-dark dark:to-secondary-dark to-secondary-light text-white px-5 py-4 font-semibold flex items-center gap-3 text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                        API Endpoints
+                    </div>
+                    <div class="px-3 py-2 border-b border-gray-200 dark:border-slate-700">
+                        <div class="relative">
+                            <input type="text" placeholder="Search endpoints..." class="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-light/50 dark:focus:ring-primary-dark/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <ul class="category-list max-h-[calc(100vh-220px)] overflow-y-auto">
+                        {% for category in docs.endpoints %}
+                        <li class="category-item border-b border-gray-200 dark:border-slate-700 last:border-0" data-category="{{ category.name|lower|replace(' ', '-') }}">
+                            <div class="category-header px-5 py-3 font-medium cursor-pointer flex justify-between items-center hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-300 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                    <span>{{ category.name }}</span>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="category-arrow w-4 h-4 text-gray-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <ul class="endpoint-list">
+                                {% for endpoint in category.endpoints %}
+                                <li class="endpoint-item px-5 py-2.5 cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-slate-800/50 text-sm text-muted-light dark:text-slate-200 border-l-4 border-transparent" 
+                                    data-endpoint="{{ endpoint.name|lower|replace(' ', '-') }}">
+                                    <div class="flex items-center gap-2">
+                                        <span class="endpoint-method {{ endpoint.method|lower }} text-xs font-medium px-2 py-0.5 rounded">{{ endpoint.method }}</span>
+                                        <span class="truncate">{{ endpoint.name }}</span>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+            
+            <main class="flex-1 min-w-0" id="documentation">
+                {% for category in docs.endpoints %}
+                    {% for endpoint in category.endpoints %}
+                    <section class="endpoint-section bg-white border-2 dark:border-slate-700 border-primary-light dark:bg-slate-800 rounded-xl mb-8 transition-all duration-300" 
+                             id="{{ endpoint.name|lower|replace(' ', '-') }}" 
+                             data-category="{{ category.name|lower|replace(' ', '-') }}">
+                        <div class="endpoint-header px-6 py-4 flex flex-wrap items-center gap-3 bg-gray-50 dark:bg-slate-800/50 rounded-t-xl">
+                            <h2 class="endpoint-title text-xl font-bold text-gray-800 dark:text-slate-200">{{ endpoint.name }}</h2>
+                            <span class="endpoint-tag text-xs bg-blue-100 dark:bg-blue-900/50 text-primary-light dark:text-blue-300 px-2.5 py-1 rounded-full">{{ category.name }}</span>
+                            <span class="endpoint-method {{ endpoint.method|lower }} text-xs font-semibold px-3 py-1 rounded-full">{{ endpoint.method }}</span>
+                            <span class="endpoint-path ml-auto font-mono bg-gray-100 dark:bg-slate-700 px-3 py-1.5 rounded-full text-xs whitespace-nowrap overflow-x-auto max-w-full">{{ docs.basePath }}{{ endpoint.path }}</span>
+                        </div>
+                        
+                        <div class="endpoint-content px-6 py-4">
+                            <div class="section">
+                                <h3 class="section-title text-sm font-medium mt-2 p-3 rounded-lg mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Description
+                                </h3>
+                                <p class="description mb-4 leading-relaxed text-sm text-muted-light dark:text-slate-400">{{ endpoint.description }}</p>
+                            </div>
+                            
+                            {% if endpoint.parameters %}
+                            <div class="section">
+                                <h3 class="section-title text-sm font-medium mt-6 mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    Parameters
+                                </h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                                        <thead class="bg-gray-50 dark:bg-slate-800/50">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Name</th>
+                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">In</th>
+                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Required</th>
+                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                                            {% for param in endpoint.parameters %}
+                                            <tr>
+                                                <td class="px-4 py-2 font-mono text-primary-light dark:text-primary-dark">{{ param.name }}</td>
+                                                <td class="px-4 py-2">{{ param.in }}</td>
+                                                <td class="px-4 py-2">{{ "Yes" if param.required else "No" }}</td>
+                                                <td class="px-4 py-2 text-muted-light dark:text-slate-700">{{ param.description }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if endpoint.request.body %}
+                            <div class="section">
+                                <h3 class="section-title p-3 rounded-lg text-sm font-medium mt-6 mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                    </svg>
+                                    Request
+                                </h3>
+                                <div class="code-container relative my-3 rounded-lg overflow-hidden transition-all duration-300">
+                                    <div class="code-header px-4 py-2.5 font-mono text-xs flex justify-between items-center">
+                                        <span class="text-muted-light dark:text-slate-500">Request Body</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs text-muted-light dark:text-slate-500">{{ endpoint.request.content_type }}</span>
+                                            <button class="copy-btn bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 px-2.5 py-1 rounded text-xs cursor-pointer hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors duration-200 flex items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                </svg>
+                                                Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="code-block p-4 font-mono text-xs overflow-x-auto">
+                                        <pre><code class="language-json">{{ endpoint.request.body|tojson(indent=2) }}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="section">
+                                <h3 class="section-title text-sm font-medium mt-6 mb-3 p-3 rounded-lg text-primary-light dark:text-primary-dark flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    Responses
+                                </h3>
+                                {% for response in endpoint.responses %}
+                                <div class="response-block my-4">
+                                    <div class="flex items-center gap-3 mb-2.5 text-sm">
+                                        <span class="response-code response-{{ response.code }} font-semibold px-2.5 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">{{ response.code }}</span>
+                                        <span class="text-muted-light dark:text-slate-400">{{ response.description }}</span>
+                                    </div>
+                                    {% if response.body %}
+                                    <div class="code-container relative my-2 rounded-lg overflow-hidden transition-all duration-300">
+                                        <div class="code-header px-4 py-2.5 font-mono text-xs flex justify-between items-center">
+                                            <span class="text-muted-light dark:text-slate-500">Response Body</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs text-muted-light dark:text-slate-500">{{ response.content_type }}</span>
+                                                <button class="copy-btn bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 px-2.5 py-1 rounded text-xs cursor-pointer hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors duration-200 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                    </svg>
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="code-block p-4 font-mono text-xs overflow-x-auto">
+                                            <pre><code class="language-json">{{ response.body|tojson(indent=2) }}</code></pre>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if endpoint.examples %}
+                            <div class="section">
+                                <h3 class="section-title text-sm font-medium mt-6 mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                    </svg>
+                                    Examples
+                                </h3>
+                                <div class="space-y-4">
+                                    {% for example in endpoint.examples %}
+                                    <div class="example-block border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                                        <div class="example-header px-4 py-2.5 bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700">
+                                            <h4 class="font-medium text-sm">{{ example.title }}</h4>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="mb-3">
+                                                <h5 class="text-xs font-medium text-muted-light dark:text-slate-400 mb-1">Request</h5>
+                                                <div class="font-mono text-xs bg-gray-50 dark:bg-slate-800/50 p-3 rounded">{{ example.request }}</div>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs font-medium text-muted-light dark:text-slate-400 mb-1">Response</h5>
+                                                <div class="font-mono text-xs bg-gray-50 dark:bg-slate-800/50 p-3 rounded">{{ example.response }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                    {% endfor %}
+                {% endfor %}
+            </main>
+        </div>
+    </div>
+    
+    <footer class="mt-16 py-8 text-center">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="max-w-4xl mx-auto border-t border-gray-200 dark:border-slate-800 pt-6">
+                <p class="text-muted-light dark:text-slate-500 text-sm">© {{ docs.info.last_updated[:4] }} {{ docs.info.title }}. All rights reserved.</p>
+                <p class="text-muted-light dark:text-slate-500 mt-2 text-sm">Contact: <a href="mailto:{{ docs.info.contact.email }}" class="text-primary-light dark:text-primary-dark hover:underline">{{ docs.info.contact.email }}</a></p>
+            </div>
+        </div>
+    </footer>
+    
+    <button class="theme-toggle fixed bottom-6 right-6 w-12 h-12 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 z-50 group" id="themeToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sunIcon" class="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moonIcon" class="w-5 h-5 hidden transform group-hover:-rotate-12 transition-transform duration-300">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.category-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const categoryItem = header.parentElement;
+                    categoryItem.classList.toggle('active');
+                    
+                    if (categoryItem.classList.contains('active')) {
+                        document.querySelectorAll('.category-item').forEach(item => {
+                            if (item !== categoryItem && item.classList.contains('active')) {
+                                item.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.endpoint-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const endpointId = item.getAttribute('data-endpoint');
+                    const endpointSection = document.getElementById(endpointId);
+                    
+                    document.querySelectorAll('.endpoint-item').forEach(i => {
+                        i.classList.remove('active', 'bg-gray-100', 'text-primary-light', 'dark:bg-slate-800', 'dark:text-primary-dark');
+                        i.classList.add('text-muted-light', 'dark:text-slate-400');
+                    });
+                    
+                    item.classList.add('active', 'bg-gray-100', 'text-primary-light', 'dark:bg-slate-800', 'dark:text-primary-dark');
+                    item.classList.remove('text-muted-light', 'dark:text-slate-400');
+                    
+                    const categoryItem = item.closest('.category-item');
+                    if (!categoryItem.classList.contains('active')) {
+                        categoryItem.classList.add('active');
+                    }
+                    
+                    endpointSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    endpointSection.classList.add('animate-fade-in');
+                    setTimeout(() => {
+                        endpointSection.classList.remove('animate-fade-in');
+                    }, 1000);
+                });
+            });
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.endpoint-section').forEach(section => {
+                observer.observe(section);
+            });
+            
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const codeBlock = btn.closest('.code-container').querySelector('code');
+                    const textToCopy = codeBlock.textContent;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Copied!
+                        `;
+                        btn.classList.remove('bg-gray-200', 'dark:bg-slate-700', 'hover:bg-gray-300', 'dark:hover:bg-slate-600');
+                        btn.classList.add('bg-green-100', 'text-green-800', 'dark:bg-green-900/50', 'dark:text-green-300');
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.classList.remove('bg-green-100', 'text-green-800', 'dark:bg-green-900/50', 'dark:text-green-300');
+                            btn.classList.add('bg-gray-200', 'dark:bg-slate-700', 'hover:bg-gray-300', 'dark:hover:bg-slate-600');
+                        }, 2000);
+                    });
+                });
+            });
+            
+            const themeToggle = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.add('transition-colors', 'duration-300');
+                document.documentElement.classList.toggle('dark');
+                
+                if (document.documentElement.classList.contains('dark')) {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                    localStorage.setItem('theme', 'light');
+                }
+                
+                setTimeout(() => {
+                    document.documentElement.classList.remove('transition-colors', 'duration-300');
+                }, 300);
+            });
+            
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+            
+            document.querySelectorAll('pre code').forEach(block => {
+                hljs.highlightElement(block);
+            });
+            
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                document.querySelectorAll('.endpoint-item').forEach(item => {
+                    const endpointName = item.textContent.toLowerCase();
+                    if (endpointName.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        
+                        const categoryItem = item.closest('.category-item');
+                        if (!categoryItem.classList.contains('active')) {
+                            categoryItem.classList.add('active');
+                        }
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            const firstEndpoint = document.querySelector('.endpoint-item');
+            if (firstEndpoint) {
+                firstEndpoint.click();
+            }
+        });
+    </script>
+</body>
+</html>

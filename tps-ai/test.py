@@ -8,59 +8,82 @@ import os
 MODEL_PATH = "train_model.pt"
 TEST_IMAGE = "image-testing/full.jpeg"
 
-# Container level thresholds
-LEVEL_THRESHOLDS = {
-    'low': 0.3,     # <30% full
-    'medium': 0.6,  # 30-60% full
-    'high': 1.0     # >60% full
+# Waste pile status thresholds and colors
+STATUS_THRESHOLDS = {
+    'empty': (0.0, 0.0),
+    'low': (0.0, 0.5),
+    'normal': (0.5, 1.0),
+    'high': (1.0, float('inf'))
 }
 
-# Color coding for levels
-LEVEL_COLORS = {
-    'low': (0, 255, 0),      # Green
-    'medium': (0, 255, 255), # Yellow
-    'high': (0, 0, 255)      # Red
+STATUS_COLORS = {
+    'empty': (100, 100, 100),
+    'low': (0, 255, 0),
+    'normal': (0, 255, 255),
+    'high': (0, 0, 255)
 }
 
-def calculate_container_level(detection_boxes, image_height):
-    """Hybrid method: combine average and max position for fill level"""
-    if len(detection_boxes) == 0:
+def calculate_waste_pile_level(garbage_boxes, container_box):
+    """Calculate waste pile height relative to container height"""
+    if len(garbage_boxes) == 0 or container_box is None:
         return 'empty', 0.0
 
-    bottom_positions = [box[3] for box in detection_boxes]  # box[3] = ymax
-    avg_y = np.mean(bottom_positions)
-    max_y = max(bottom_positions)
-    hybrid_y = (avg_y + max_y) / 2
+    # Calculate the highest and lowest points of garbage detections
+    top_positions = [box[1] for box in garbage_boxes]  # ymin
+    bottom_positions = [box[3] for box in garbage_boxes]  # ymax
 
-    fill_ratio = max(0.0, min(1.0, hybrid_y / image_height))
+    min_y = min(top_positions)  # Highest point (smallest y value)
+    max_y = max(bottom_positions)  # Lowest point (largest y value)
 
-    if fill_ratio < LEVEL_THRESHOLDS['low']:
-        return 'low', fill_ratio
-    elif fill_ratio < LEVEL_THRESHOLDS['medium']:
-        return 'medium', fill_ratio
-    else:
-        return 'high', fill_ratio
+    waste_height = max_y - min_y
+
+    # Calculate container height
+    container_ymin, container_ymax = container_box[1], container_box[3]
+    container_height = container_ymax - container_ymin
+
+    if container_height <= 0:
+        return 'empty', 0.0
+
+    fill_ratio = waste_height / container_height
+
+    # Determine status
+    for status, (min_thresh, max_thresh) in STATUS_THRESHOLDS.items():
+        if min_thresh <= fill_ratio < max_thresh:
+            return status, fill_ratio
+    return 'high', fill_ratio
 
 def process_image(image_path):
     # Load image
     image = cv2.imread(image_path)
     if image is None:
         print(f"Error: Cannot read image {image_path}")
-        return None
-
-    image_height = image.shape[0]
+        return None, None, None
 
     # Load model and perform detection
     model = YOLO(MODEL_PATH)
     results = model(image, conf=0.085, iou=0.5)
     detections = sv.Detections.from_ultralytics(results[0])
 
-    # Calculate container level
-    level, fill_ratio = calculate_container_level(detections.xyxy, image_height)
+    container_boxes = []
+    garbage_boxes = []
+
+    for class_id, box in zip(detections.class_id, detections.xyxy):
+        class_name = model.model.names[class_id].lower()
+        if class_name == "container":
+            container_boxes.append(box)
+        elif class_name == "garbage":
+            garbage_boxes.append(box)
+
+    # Assume only one container
+    container_box = container_boxes[0] if container_boxes else None
+
+    # Calculate waste pile level
+    level, fill_ratio = calculate_waste_pile_level(garbage_boxes, container_box)
+    status_color = STATUS_COLORS.get(level, (255, 255, 255))
 
     # Create labels for detections
     labels = [
-        f"{model.model.names[class_id]} {confidence:.2f}" 
+        f"{model.model.names[class_id]} {confidence:.2f}"
         for class_id, confidence in zip(detections.class_id, detections.confidence)
     ]
 
@@ -88,41 +111,59 @@ def process_image(image_path):
         labels=labels
     )
 
-    # Add container level indicator
-    level_color = LEVEL_COLORS.get(level, (255, 255, 255))
-    cv2.rectangle(annotated_image, (10, 10), (350, 80), (0, 0, 0), -1)
+    # Create compact status box on the left side
+    box_width = 250  # Width of the status box
+    box_height = 80  # Height of the status box
+    margin = 10      # Margin from the edges
+    
+    # Create semi-transparent black rectangle
+    overlay = annotated_image.copy()
+    cv2.rectangle(overlay, 
+                 (margin, margin), 
+                 (box_width, box_height), 
+                 (0, 0, 0), -1)
+    
+    # Add transparency
+    alpha = 0.7  # Transparency factor
+    annotated_image = cv2.addWeighted(overlay, alpha, annotated_image, 1 - alpha, 0)
+    
+    # Add status with color coding
     cv2.putText(annotated_image, 
-                f"Container Level: {level.upper()}",
-                (20, 40), 
-                cv2.FONT_HERSHEY_SIMPLEX, 
-                1, 
-                level_color, 
-                2)
+               f"Status: {level.upper()}",
+               (margin + 10, margin + 30), 
+               cv2.FONT_HERSHEY_SIMPLEX, 
+               0.7, 
+               status_color, 
+               2)
+    
+    # Add fill ratio
     cv2.putText(annotated_image, 
-                f"Fill Ratio: {fill_ratio:.1%}",
-                (20, 70), 
-                cv2.FONT_HERSHEY_SIMPLEX, 
-                0.8, 
-                level_color, 
-                2)
+               f"Fill: {fill_ratio:.1%}",
+               (margin + 10, margin + 60), 
+               cv2.FONT_HERSHEY_SIMPLEX, 
+               0.7, 
+               (255, 255, 255), 
+               2)
 
     return annotated_image, level, fill_ratio
-
+ 
 def main():
-    # Process the image
     print(f"Processing image: {TEST_IMAGE}")
     result, level, fill_ratio = process_image(TEST_IMAGE)
 
     if result is not None:
-        # Save output
         os.makedirs("output", exist_ok=True)
         output_path = f"output/detected_{os.path.basename(TEST_IMAGE)}"
         cv2.imwrite(output_path, result)
         print(f"Result saved to: {output_path}")
-        print(f"Container Status: {level.upper()} ({fill_ratio:.1%} full)")
+        print(f"Waste Pile Status: {level.upper()}")
+        print(f"Container Fill Ratio: {fill_ratio:.1%}")
 
-        # Display result
-        cv2.imshow("Waste Detection Result", result)
+        h, w = result.shape[:2]
+        max_height = 800
+        scale = max_height / h
+        resized = cv2.resize(result, (int(w * scale), int(h * scale)))
+        cv2.imshow("Waste Detection Result", resized)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 

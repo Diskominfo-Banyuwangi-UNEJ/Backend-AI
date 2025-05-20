@@ -1,0 +1,709 @@
+{
+	"info": {
+		"_postman_id": "247d6acb-fc1d-4f39-a50f-7e3e60443199",
+		"name": "Diskominfo API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "18670422"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"beta@gmail.com\",\r\n    \"password\" : \"12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASEURL}}{{API}}/auth/signin"
+					},
+					"response": [
+						{
+							"name": "Response - Signin",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\" : \"beta@gmail.com\",\r\n    \"password\" : \"12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{BASEURL}}{{API}}/auth/signin"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:03:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "264"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDczMjg2MzIsImlkX3VzZXIiOjEsImVtYWlsIjoiYmV0YUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImJldGEifQ.h3RHEKCt5SMt2ExxtCu9cpqfdDXIQC5aCGNb9ZDSZjs; Expires=Fri, 16 May 2025 17:03:52 GMT; Secure; HttpOnly; Path=/; SameSite=Lax"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User logged in successfully\",\n    \"status\": \"success\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDczMjg2MzIsImlkX3VzZXIiOjEsImVtYWlsIjoiYmV0YUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImJldGEifQ.h3RHEKCt5SMt2ExxtCu9cpqfdDXIQC5aCGNb9ZDSZjs\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}/auth/logout"
+					},
+					"response": [
+						{
+							"name": "Response - Logout",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}/auth/logout"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:04:08 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "66"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Path=/"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Logged out successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name_lengkap\": \"Ghanza Beta\",\n    \"email\": \"beta@gmail.com\",\n    \"username\": \"beta\",\n    \"password\": \"12345\",\n    \"role\": \"ADMIN\",\n    \"jenis_kelamin\": \"MALE\",\n    \"no_telepon\": \"082229350946\",\n    \"tanggal_lahir\": \"2003-08-12\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASEURL}}{{API}}/users"
+					},
+					"response": [
+						{
+							"name": "Response - Create User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_lengkap\": \"Ghanza Beta\",\n    \"email\": \"beta@gmail.com\",\n    \"username\": \"beta\",\n    \"password\": \"12345\",\n    \"role\": \"ADMIN\",\n    \"jenis_kelamin\": \"MALE\",\n    \"no_telepon\": \"082229350946\",\n    \"tanggal_lahir\": \"2003-08-12\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{BASEURL}}{{API}}/users"
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:03:09 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "294"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"created_at\": \"2025-05-15T17:03:09\",\n        \"email\": \"beta@gmail.com\",\n        \"name_lengkap\": \"Ghanza Beta\",\n        \"no_telepon\": \"082229350946\",\n        \"role\": \"ADMIN\",\n        \"updated_at\": null,\n        \"username\": \"beta\"\n    },\n    \"message\": \"User created successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASEURL}}{{API}}/users"
+					},
+					"response": [
+						{
+							"name": "Response - Get All Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{BASEURL}}{{API}}/users"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:04:26 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "323"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"created_at\": \"2025-05-15T17:03:09\",\n            \"email\": \"beta@gmail.com\",\n            \"name_lengkap\": \"Ghanza Beta\",\n            \"no_telepon\": \"082229350946\",\n            \"role\": \"ADMIN\",\n            \"updated_at\": null,\n            \"username\": \"beta\"\n        }\n    ],\n    \"message\": \"Users retrieved successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Single User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}users/1"
+					},
+					"response": [
+						{
+							"name": "Response - Get Single User",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}users/1"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:04:38 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "252"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"created_at\": \"2025-05-15T17:03:09\",\n        \"email\": \"beta@gmail.com\",\n        \"name_lengkap\": \"Ghanza Beta\",\n        \"no_telepon\": \"082229350946\",\n        \"role\": \"ADMIN\",\n        \"updated_at\": null,\n        \"username\": \"beta\"\n    },\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name_lengkap\": \"Ghanza\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASEURL}}{{API}}users/5"
+					},
+					"response": [
+						{
+							"name": "Response - Update User",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_lengkap\": \"Ghanza\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{BASEURL}}{{API}}users/1"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:04:58 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "306"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"created_at\": \"2025-05-15T17:03:09\",\n        \"email\": \"beta@gmail.com\",\n        \"name_lengkap\": \"Ghanza\",\n        \"no_telepon\": \"082229350946\",\n        \"role\": \"ADMIN\",\n        \"updated_at\": \"2025-05-15T17:04:59\",\n        \"username\": \"beta\"\n    },\n    \"message\": \"User updated successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tumpukan Sampah",
+			"item": [
+				{
+					"name": "Create Tumpukan Sampah",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\n    \"nama_lokasi\": \"TPS Pulogadung\",\n    \"alamat\": \"Jl. Raya Bekasi\",\n    \"latitude\": -6.208857,\n    \"longitude\": 106.900028\n  }"
+						},
+						"url": "{{BASEURL}}{{API}}/tumpukan_sampah"
+					},
+					"response": [
+						{
+							"name": "Response - Create Tumpukan Sampah",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nama_lokasi\": \"TPS Rawasari\",\n    \"alamat\": \"Jl. Rawasari Selatan\",\n    \"latitude\": -6.175392,\n    \"longitude\": 106.827153\n}"
+								},
+								"url": "{{BASEURL}}{{API}}/tumpukan_sampah"
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 06:55:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "308"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"alamat\": \"Jl. Rawasari Selatan\",\n        \"created_at\": \"Thu, 15 May 2025 06:55:31 GMT\",\n        \"id\": 1,\n        \"latitude\": -6.17539,\n        \"longitude\": 106.827,\n        \"nama_lokasi\": \"TPS Rawasari\",\n        \"updated_at\": null\n    },\n    \"message\": \"Tumpukan Sampah created successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Tumpukan Sampah",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}{{API}}/tumpukan_sampah?page=1&per_page=10",
+							"host": [
+								"{{BASEURL}}{{API}}"
+							],
+							"path": [
+								"tumpukan_sampah"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Response - Get All Tumpukan Sampah",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASEURL}}{{API}}/tumpukan_sampah?page=1&per_page=10",
+									"host": [
+										"{{BASEURL}}{{API}}"
+									],
+									"path": [
+										"tumpukan_sampah"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 17:02:03 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1399"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"alamat\": \"Jl. Raya Bekasi\",\n            \"created_at\": \"Thu, 15 May 2025 17:01:34 GMT\",\n            \"id\": 6,\n            \"latitude\": -6.20886,\n            \"longitude\": 106.9,\n            \"nama_lokasi\": \"TPS Pulogadung\",\n            \"updated_at\": null\n        },\n        {\n            \"alamat\": \"Jl. Raya Bogor\",\n            \"created_at\": \"Thu, 15 May 2025 17:01:22 GMT\",\n            \"id\": 5,\n            \"latitude\": -6.27219,\n            \"longitude\": 106.864,\n            \"nama_lokasi\": \"TPS Kramat Jati\",\n            \"updated_at\": null\n        },\n        {\n            \"alamat\": \"Jl. Matraman Raya\",\n            \"created_at\": \"Thu, 15 May 2025 17:01:13 GMT\",\n            \"id\": 4,\n            \"latitude\": -6.20139,\n            \"longitude\": 106.871,\n            \"nama_lokasi\": \"TPS Matraman\",\n            \"updated_at\": null\n        },\n        {\n            \"alamat\": \"Jl. Cempaka Putih Tengah\",\n            \"created_at\": \"Thu, 15 May 2025 17:01:04 GMT\",\n            \"id\": 3,\n            \"latitude\": -6.17394,\n            \"longitude\": 106.858,\n            \"nama_lokasi\": \"TPS Cempaka Putih\",\n            \"updated_at\": null\n        },\n        {\n            \"alamat\": \"Jl. Rawasari Selatan\",\n            \"created_at\": \"Thu, 15 May 2025 17:00:36 GMT\",\n            \"id\": 2,\n            \"latitude\": -6.17539,\n            \"longitude\": 106.827,\n            \"nama_lokasi\": \"TPS Rawasari\",\n            \"updated_at\": null\n        }\n    ],\n    \"message\": \"Tumpukan Sampah retrieved successfully\",\n    \"pagination\": {\n        \"current_page\": 1,\n        \"per_page\": 10,\n        \"total_items\": 5,\n        \"total_pages\": 1\n    },\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Single Tumpukan Sampah",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+					},
+					"response": [
+						{
+							"name": "Response - Get Single Tumpukan Sampah",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 07:02:59 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "310"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"alamat\": \"Jl. Rawasari Selatan\",\n        \"created_at\": \"Thu, 15 May 2025 06:55:31 GMT\",\n        \"id\": 1,\n        \"latitude\": -6.17539,\n        \"longitude\": 106.827,\n        \"nama_lokasi\": \"TPS Rawasari\",\n        \"updated_at\": null\n    },\n    \"message\": \"Tumpukan Sampah retrieved successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Tumpukan Sampah",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nama_lokasi\": \"TPS Rawasari Updated\",\n    \"alamat\": \"Jl. Rawasari Selatan No. 5\"\n}"
+						},
+						"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+					},
+					"response": [
+						{
+							"name": "Response - Update Tumpukan Sampah",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nama_lokasi\": \"TPS Rawasari Updated\",\n    \"alamat\": \"Jl. Rawasari Selatan No. 5\"\n}"
+								},
+								"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 07:03:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "349"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"alamat\": \"Jl. Rawasari Selatan No. 5\",\n        \"created_at\": \"Thu, 15 May 2025 06:55:31 GMT\",\n        \"id\": 1,\n        \"latitude\": -6.17539,\n        \"longitude\": 106.827,\n        \"nama_lokasi\": \"TPS Rawasari Updated\",\n        \"updated_at\": \"Thu, 15 May 2025 07:03:32 GMT\"\n    },\n    \"message\": \"Tumpukan Sampah updated successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Tumpukan Sampah",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+					},
+					"response": [
+						{
+							"name": "Response - Delete Tumpukan Sampah",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}/tumpukan_sampah/1"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 15 May 2025 16:58:58 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "79"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Tumpukan Sampah deleted successfully\",\n    \"status\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Analisis Tumpukan",
+			"item": [
+				{
+					"name": "Get All Analisis Tumpukan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}/analisis_tumpukan/getAll"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
