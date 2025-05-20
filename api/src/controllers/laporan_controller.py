@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, send_file, make_response
+from flask import Blueprint, jsonify, request, send_file, make_response, render_template_string
 from src.models.laporan_model import Laporan, StatusPengerjaan, Kategori
 from src.models.user_model import User
 from src import db
@@ -8,6 +8,9 @@ from functools import wraps
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from docx import Document
+from xhtml2pdf import pisa
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 laporan = Blueprint('laporan', __name__)
 
@@ -255,9 +258,140 @@ def update_status_laporan(id):
             'message': str(e)
         }), 500
 
+
+def get_status_class(status):
+    status_map = {
+        'BARU': 'new',
+        'DIBACA': 'progress',
+        'SELESAI': 'completed'
+    }
+    return status_map.get(status, 'new')
+
 @laporan.route('/downloadLaporan/<int:id>/<format>', methods=["GET"])
 @handle_errors
 def download_laporan(id, format):
+    try:
+        laporan = Laporan.query.get(id)
+        if not laporan:
+            return jsonify({
+                'status': "error",
+                'message': "Laporan tidak ditemukan."
+            }), 404
+            
+        if format not in ['pdf', 'docx']:
+            return jsonify({
+                'status': "error",
+                'message': "Format tidak valid. Pilih antara pdf atau docx"
+            }), 400
+
+        # Prepare data for template
+        report_data = {
+            'report_id': laporan.id,
+            'judul_laporan': laporan.judul_laporan,
+            'deskripsi': laporan.deskripsi,
+            'kategori': laporan.kategori.value,
+            'status': laporan.status_pengerjaan.value,
+            'status_class': get_status_class(laporan.status_pengerjaan.value),
+            'created_at': laporan.created_at.strftime('%d %B %Y %H:%M'),
+            'print_date': datetime.now().strftime('%d %B %Y %H:%M'),
+            'printed_by': 'Sistem Pelaporan'
+        }
+
+        if format == 'pdf':
+            # Render HTML template
+            with open('src/templates/report_template.html', 'r') as f:
+                template = f.read()
+            html = render_template_string(template, **report_data)
+            
+            # Create PDF
+            buffer = BytesIO()
+            pisa.CreatePDF(html, dest=buffer, encoding='UTF-8')
+            
+            buffer.seek(0)
+            response = make_response(buffer.getvalue())
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = (
+                f'attachment; filename=Laporan_{laporan.id}_{datetime.now().strftime("%Y%m%d")}.pdf'
+            )
+            return response
+            
+        elif format == 'docx':
+            # Create DOCX with styling
+            document = Document()
+            
+            # Add header
+            header = document.sections[0].header
+            header_para = header.paragraphs[0]
+            header_run = header_para.add_run()
+            # header_run.add_picture('static/images/logo.png', width=Inches(1))
+            header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            
+            title = document.add_heading('LAPORAN RESMI', level=1)
+            title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            document.add_paragraph('Sistem Pelaporan Masyarakat', style='Subtitle')
+            document.add_paragraph()
+            
+            # Add report info
+            document.add_heading('INFORMASI UMUM', level=2)
+            info_table = document.add_table(rows=4, cols=2)
+            info_table.style = 'Light Shading'
+            
+            cells = info_table.rows[0].cells
+            cells[0].text = 'Nomor Laporan'
+            cells[1].text = f': {laporan.id}'
+            
+            cells = info_table.rows[1].cells
+            cells[0].text = 'Tanggal'
+            cells[1].text = f': {laporan.created_at.strftime("%d %B %Y %H:%M")}'
+            
+            cells = info_table.rows[2].cells
+            cells[0].text = 'Status'
+            status_run = cells[1].paragraphs[0].add_run(f': {laporan.status_pengerjaan.value}')
+            status_run.bold = True
+            if laporan.status_pengerjaan.value == 'SELESAI':
+                status_run.font.color.rgb = RGBColor(0x4C, 0xAF, 0x50)
+            elif laporan.status_pengerjaan.value == 'DIBACA':
+                status_run.font.color.rgb = RGBColor(0x21, 0x96, 0xF3)
+            else:
+                status_run.font.color.rgb = RGBColor(0xFF, 0xC1, 0x07)
+            
+            cells = info_table.rows[3].cells
+            cells[0].text = 'Jenis Laporan'
+            cells[1].text = f': {laporan.kategori.value}'
+            
+            # Add report content
+            document.add_heading('DETAIL LAPORAN', level=2)
+            document.add_heading(laporan.judul_laporan, level=3)
+            document.add_paragraph(laporan.deskripsi)
+            
+            # Add footer
+            footer = document.sections[0].footer
+            footer_para = footer.paragraphs[0]
+            footer_para.text = (
+                f"Dokumen ini dicetak pada {datetime.now().strftime('%d %B %Y %H:%M')} oleh Sistem Pelaporan\n"
+                "© 2023 Sistem Pelaporan Masyarakat"
+            )
+            footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            footer_para.style.font.size = Pt(10)
+            
+            buffer = BytesIO()
+            document.save(buffer)
+            buffer.seek(0)
+            
+            response = make_response(buffer.getvalue())
+            response.headers['Content-Type'] = (
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            )
+            response.headers['Content-Disposition'] = (
+                f'attachment; filename=Laporan_{laporan.id}_{datetime.now().strftime("%Y%m%d")}.docx'
+            )
+            return response
+            
+    except Exception as e:
+        return jsonify({
+            'status': "error",
+            'message': f"Gagal mengunduh laporan. Silakan coba lagi. Error: {str(e)}"
+        }), 500
     """Endpoint untuk mengunduh laporan dalam format PDF atau DOCX"""
     try:
         laporan = Laporan.query.get(id)
