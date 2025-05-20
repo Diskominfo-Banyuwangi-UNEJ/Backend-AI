@@ -699,7 +699,461 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{BASEURL}}{{API}}/analisis_tumpukan/getAll"
+						"url": "{{BASEURL}}{{API}}analisis_tumpukan/getAll"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Laporan",
+			"item": [
+				{
+					"name": "Get All Reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}{{API}}laporan/getAllLaporan",
+							"host": [
+								"{{BASEURL}}{{API}}laporan"
+							],
+							"path": [
+								"getAllLaporan"
+							],
+							"query": [
+								{
+									"key": "kategori",
+									"value": "KERAMAIAN",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/getAllLaporan"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": [\n        {\n            \"id\": 1,\n            \"judul_laporan\": \"Keramaian di taman\",\n            \"deskripsi\": \"Ada keramaian yang mengganggu ketenangan warga\",\n            \"estimasi\": \"2 hari\",\n            \"kategori\": \"KERAMAIAN\",\n            \"status_pengerjaan\": \"BARU\",\n            \"created_at\": \"2023-05-15T14:30:00\",\n            \"updated_at\": \"2023-05-15T14:30:00\",\n            \"id_user\": 1\n        }\n    ]\n}"
+						},
+						{
+							"name": "Empty Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASEURL}}{{API}}laporan/getAllLaporan",
+									"host": [
+										"{{BASEURL}}{{API}}laporan"
+									],
+									"path": [
+										"getAllLaporan"
+									],
+									"query": [
+										{
+											"key": "kategori",
+											"value": "KERAMAIAN",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Tidak ada laporan ditemukan.\",\n    \"data\": []\n}"
+						},
+						{
+							"name": "Invalid Enum Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASEURL}}{{API}}laporan/getAllLaporan",
+									"host": [
+										"{{BASEURL}}{{API}}laporan"
+									],
+									"path": [
+										"getAllLaporan"
+									],
+									"query": [
+										{
+											"key": "kategori",
+											"value": "KERAMAIAN",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Status atau kategori tidak valid\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Report Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}laporan/getLaporanDetail/2"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}laporan/getLaporanDetail/2"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"id\": 1,\n        \"judul_laporan\": \"Keramaian di taman\",\n        \"deskripsi\": \"Ada keramaian yang mengganggu ketenangan warga\",\n        \"estimasi\": \"2 hari\",\n        \"kategori\": \"KERAMAIAN\",\n        \"status_pengerjaan\": \"BARU\",\n        \"created_at\": \"2023-05-15T14:30:00\",\n        \"updated_at\": \"2023-05-15T14:30:00\",\n        \"id_user\": 1\n    }\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}laporan/getLaporanDetail/2"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Laporan tidak ditemukan.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul_laporan\": \"RAME\",\n    \"deskripsi\": \"RUAMEE\",\n    \"estimasi\": \"3 hari\",\n    \"kategori\": \"KERAMAIAN\",\n    \"id_user\": 1\n}"
+						},
+						"url": "{{BASEURL}}{{API}}laporan/createLaporan"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"RAME\",\n    \"deskripsi\": \"RUAMEE\",\n    \"estimasi\": \"3 hari\",\n    \"kategori\": \"KERAMAIAN\",\n    \"id_user\": 1\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/createLaporan"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Laporan berhasil dibuat.\",\n    \"data\": {\n        \"id\": 3,\n        \"judul_laporan\": \"Tumpukan sampah baru\",\n        \"deskripsi\": \"Sampah menumpuk di gang kecil\",\n        \"estimasi\": \"3 hari\",\n        \"kategori\": \"TUMPUKAN_SAMPAH\",\n        \"status_pengerjaan\": \"BARU\",\n        \"created_at\": \"2023-05-20T10:45:00\",\n        \"updated_at\": \"2023-05-20T10:45:00\",\n        \"id_user\": 3\n    }\n}"
+						},
+						{
+							"name": "Validation Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"RAME\",\n    \"deskripsi\": \"RUAMEE\",\n    \"estimasi\": \"3 hari\",\n    \"kategori\": \"KERAMAIAN\",\n    \"id_user\": 1\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/createLaporan"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Field judul_laporan harus diisi!\"\n}"
+						},
+						{
+							"name": "Invalid Kategori Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"RAME\",\n    \"deskripsi\": \"RUAMEE\",\n    \"estimasi\": \"3 hari\",\n    \"kategori\": \"KERAMAIAN\",\n    \"id_user\": 1\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/createLaporan"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Kategori tidak valid. Pilih antara KERAMAIAN atau TUMPUKAN_SAMPAH\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Report",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"judul_laporan\": \"Keramaian di taman (updated)\",\n    \"status_pengerjaan\": \"DIBACA\"\n}"
+						},
+						"url": "{{BASEURL}}{{API}}laporan/updateLaporan/3"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"Keramaian di taman (updated)\",\n    \"status_pengerjaan\": \"DIBACA\"\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/updateLaporan/3"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Laporan berhasil diperbarui.\",\n    \"data\": {\n        \"id\": 1,\n        \"judul_laporan\": \"Keramaian di taman (updated)\",\n        \"deskripsi\": \"Ada keramaian yang mengganggu ketenangan warga\",\n        \"estimasi\": \"2 hari\",\n        \"kategori\": \"KERAMAIAN\",\n        \"status_pengerjaan\": \"DIBACA\",\n        \"created_at\": \"2023-05-15T14:30:00\",\n        \"updated_at\": \"2023-05-16T09:15:00\",\n        \"id_user\": 1\n    }\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"Keramaian di taman (updated)\",\n    \"status_pengerjaan\": \"DIBACA\"\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/updateLaporan/3"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Laporan tidak ditemukan.\"\n}"
+						},
+						{
+							"name": "Invalid Status Error",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"judul_laporan\": \"Keramaian di taman (updated)\",\n    \"status_pengerjaan\": \"DIBACA\"\n}"
+								},
+								"url": "{{BASEURL}}{{API}}laporan/updateLaporan/3"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Status tidak valid. Pilih antara BARU, DIBACA, atau SELESAI\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Report",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{BASEURL}}{{API}}laporan/deleteLaporan/2"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}laporan/deleteLaporan/2"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Laporan berhasil dihapus.\"\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{BASEURL}}{{API}}laporan/deleteLaporan/2"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Laporan tidak ditemukan.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Status",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status_pengerjaan\": \"DIBACA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASEURL}}{{API}}laporan/updateStatusLaporan/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Download Laporan",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}
