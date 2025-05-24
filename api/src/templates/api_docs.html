@@ -318,7 +318,7 @@
                         </div>
                     </div>
                     <ul class="category-list max-h-[calc(100vh-220px)] overflow-y-auto">
-                        {% for category in docs.endpoints %}
+                        {% for category in docs.tags %}
                         <li class="category-item border-b border-gray-200 dark:border-slate-700 last:border-0" data-category="{{ category.name|lower|replace(' ', '-') }}">
                             <div class="category-header px-5 py-3 font-medium cursor-pointer flex justify-between items-center hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-300 text-sm">
                                 <div class="flex items-center gap-2">
@@ -332,7 +332,7 @@
                                 </svg>
                             </div>
                             <ul class="endpoint-list">
-                                {% for endpoint in category.endpoints %}
+                                {% for endpoint in docs.endpoints[category.name] %}
                                 <li class="endpoint-item px-5 py-2.5 cursor-pointer transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-slate-800/50 text-sm text-muted-light dark:text-slate-200 border-l-4 border-transparent" 
                                     data-endpoint="{{ endpoint.name|lower|replace(' ', '-') }}">
                                     <div class="flex items-center gap-2">
@@ -349,8 +349,8 @@
             </aside>
             
             <main class="flex-1 min-w-0" id="documentation">
-                {% for category in docs.endpoints %}
-                    {% for endpoint in category.endpoints %}
+                {% for category in docs.tags %}
+                    {% for endpoint in docs.endpoints[category.name] %}
                     <section class="endpoint-section bg-white border-2 dark:border-slate-700 border-primary-light dark:bg-slate-800 rounded-xl mb-8 transition-all duration-300" 
                              id="{{ endpoint.name|lower|replace(' ', '-') }}" 
                              data-category="{{ category.name|lower|replace(' ', '-') }}">
@@ -372,31 +372,27 @@
                                 <p class="description mb-4 leading-relaxed text-sm text-muted-light dark:text-slate-400">{{ endpoint.description }}</p>
                             </div>
                             
-                            {% if endpoint.parameters %}
+                            {% if endpoint.request.query_params %}
                             <div class="section">
                                 <h3 class="section-title text-sm font-medium mt-6 mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>
-                                    Parameters
+                                    Query Parameters
                                 </h3>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
                                         <thead class="bg-gray-50 dark:bg-slate-800/50">
                                             <tr>
                                                 <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Name</th>
-                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">In</th>
-                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Required</th>
-                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Description</th>
+                                                <th class="px-4 py-2 text-left font-medium text-gray-500 dark:text-slate-400">Value</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
-                                            {% for param in endpoint.parameters %}
+                                            {% for param in endpoint.request.query_params %}
                                             <tr>
-                                                <td class="px-4 py-2 font-mono text-primary-light dark:text-primary-dark">{{ param.name }}</td>
-                                                <td class="px-4 py-2">{{ param.in }}</td>
-                                                <td class="px-4 py-2">{{ "Yes" if param.required else "No" }}</td>
-                                                <td class="px-4 py-2 text-muted-light dark:text-slate-700">{{ param.description }}</td>
+                                                <td class="px-4 py-2 font-mono text-primary-light dark:text-primary-dark">{{ param.keys()[0] }}</td>
+                                                <td class="px-4 py-2">{{ param.values()[0] }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -443,7 +439,7 @@
                                 {% for response in endpoint.responses %}
                                 <div class="response-block my-4">
                                     <div class="flex items-center gap-3 mb-2.5 text-sm">
-                                        <span class="response-code response-{{ response.code }} font-semibold px-2.5 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">{{ response.code }}</span>
+                                        <span class="response-code response-{{ response.code }} font-semibold px-2.5 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">{{ response.code }} - {{ response.status }}</span>
                                         <span class="text-muted-light dark:text-slate-400">{{ response.description }}</span>
                                     </div>
                                     {% if response.body %}
@@ -468,36 +464,6 @@
                                 </div>
                                 {% endfor %}
                             </div>
-                            
-                            {% if endpoint.examples %}
-                            <div class="section">
-                                <h3 class="section-title text-sm font-medium mt-6 mb-3 text-primary-light dark:text-primary-dark flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                    </svg>
-                                    Examples
-                                </h3>
-                                <div class="space-y-4">
-                                    {% for example in endpoint.examples %}
-                                    <div class="example-block border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                                        <div class="example-header px-4 py-2.5 bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700">
-                                            <h4 class="font-medium text-sm">{{ example.title }}</h4>
-                                        </div>
-                                        <div class="p-4">
-                                            <div class="mb-3">
-                                                <h5 class="text-xs font-medium text-muted-light dark:text-slate-400 mb-1">Request</h5>
-                                                <div class="font-mono text-xs bg-gray-50 dark:bg-slate-800/50 p-3 rounded">{{ example.request }}</div>
-                                            </div>
-                                            <div>
-                                                <h5 class="text-xs font-medium text-muted-light dark:text-slate-400 mb-1">Response</h5>
-                                                <div class="font-mono text-xs bg-gray-50 dark:bg-slate-800/50 p-3 rounded">{{ example.response }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
                         </div>
                     </section>
                     {% endfor %}
@@ -514,6 +480,8 @@
             </div>
         </div>
     </footer>
+
+    
     
     <button class="theme-toggle fixed bottom-6 right-6 w-12 h-12 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 z-50 group" id="themeToggle">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sunIcon" class="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300">
@@ -534,6 +502,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+
             document.querySelectorAll('.category-header').forEach(header => {
                 header.addEventListener('click', () => {
                     const categoryItem = header.parentElement;
@@ -674,6 +643,35 @@
             if (firstEndpoint) {
                 firstEndpoint.click();
             }
+            
+            // Add this to handle dictionary objects in query parameters
+            function getFirstKeyValue(obj) {
+                if (obj && typeof obj === 'object') {
+                    const keys = Object.keys(obj);
+                    if (keys.length > 0) {
+                        return { key: keys[0], value: obj[keys[0]] };
+                    }
+                }
+                return { key: '', value: '' };
+            }
+
+            // Update the query parameters display
+            document.querySelectorAll('td').forEach(td => {
+                if (td.textContent.includes('{') && td.textContent.includes('}')) {
+                    try {
+                        const obj = JSON.parse(td.textContent);
+                        const { key, value } = getFirstKeyValue(obj);
+                        td.textContent = `${key}: ${value}`;
+                    } catch (e) {
+                        // Not a JSON string, leave as is
+                    }
+                }
+            });
+
+            // Highlight all code blocks
+            document.querySelectorAll('pre code').forEach(block => {
+                hljs.highlightElement(block);
+            });
         });
     </script>
 </body>

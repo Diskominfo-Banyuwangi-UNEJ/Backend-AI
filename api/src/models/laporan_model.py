@@ -3,9 +3,9 @@ from enum import Enum
 from datetime import datetime
 
 class StatusPengerjaan(Enum):
-    BARU    = 'BARU'
-    DIBACA  = 'DIBACA'
-    SELESAI = 'SELESAI'
+    DITERIMA                = 'DITERIMA'
+    DALAM_PENGERJAAN        = 'DALAM PENGERJAAN'
+    SELESAI                 = 'SELESAI'
 
 class Kategori(Enum):
     KERAMAIAN       = 'KERAMAIAN'

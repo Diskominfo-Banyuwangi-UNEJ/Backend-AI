@@ -8,7 +8,7 @@ class StatusAnalisis(Enum):
 
 class AnalisisTumpukan(db.Model):  # Must inherit from db.Model
     __tablename__ = 'analisis_tumpukan'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     id_tumpukan = db.Column(db.Integer, db.ForeignKey('tumpukan_sampah.id'), nullable=False)
     image = db.Column(db.String(255), nullable=False)

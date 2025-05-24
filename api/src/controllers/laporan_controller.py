@@ -121,7 +121,7 @@ def create_laporan():
             deskripsi=data['deskripsi'],
             estimasi=data['estimasi'],
             kategori=kategori,
-            status_pengerjaan=StatusPengerjaan.BARU,
+            status_pengerjaan=StatusPengerjaan.DITERIMA,
             id_user=data['id_user']
         )
         
@@ -261,8 +261,8 @@ def update_status_laporan(id):
 
 def get_status_class(status):
     status_map = {
-        'BARU': 'new',
-        'DIBACA': 'progress',
+        'DITERIMA': 'new',
+        'DALAM_PENGERJAAN': 'progress',
         'SELESAI': 'completed'
     }
     return status_map.get(status, 'new')

@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 config = Config().dev_config
 
@@ -30,6 +32,7 @@ from src.models.tumpukan_sampah_model import TumpukanSampah
 from src.models.analisis_tumpukan_model import AnalisisTumpukan
 from src.models.keramaian_model import Keramaian
 from src.models.analisis_keramaian_model import AnalisisKeramaian
+from src.models.pengaduan_model import Pengaduan
 
 from src.routes import api
 
